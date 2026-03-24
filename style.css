@@ -80,6 +80,13 @@ body {
   padding: 16px;
   border-radius: 0;
   animation: fadeSlideIn 0.3s ease-out both;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+.form-section.section-dropdown-open {
+  z-index: 50;
 }
 
 .form-section:first-of-type {
@@ -234,13 +241,13 @@ body {
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 200;
   max-height: 220px;
   overflow-y: auto;
   background: var(--bg);
   border: 1px solid var(--secondary-bg);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
   -webkit-overflow-scrolling: touch;
 }
 

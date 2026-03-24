@@ -253,6 +253,9 @@
     searchInput.addEventListener('focus', () => {
       renderList(searchInput.value);
       listEl.classList.add('open');
+      // Elevate parent section so dropdown renders above siblings
+      const section = searchInput.closest('.form-section');
+      if (section) section.classList.add('section-dropdown-open');
     });
 
     searchInput.addEventListener('input', () => {
@@ -284,6 +287,9 @@
       if (!e.target.closest('#' + key + 'Select')) {
         listEl.classList.remove('open');
         highlightIdx = -1;
+        // Remove section elevation
+        const section = searchInput.closest('.form-section');
+        if (section) section.classList.remove('section-dropdown-open');
       }
     });
   }
