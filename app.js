@@ -85,6 +85,56 @@
         { value: 6, label: 'Qaraj' },
       ];
     }
+    if (!state.combos.buildingTypes?.length) {
+      state.combos.buildingTypes = [
+        { value: 1, label: 'Yeni tikili' },
+        { value: 2, label: 'Köhnə tikili' },
+      ];
+    }
+    if (!state.combos.regions?.length) {
+      state.combos.regions = [
+        { value: 1, label: 'Bakı ş.' },
+        { value: 2, label: 'Bakı ş., Binəqədi r.' },
+        { value: 3, label: 'Bakı ş., Nərimanov r.' },
+        { value: 4, label: 'Bakı ş., Nəsimi r.' },
+        { value: 5, label: 'Bakı ş., Nizami r.' },
+        { value: 6, label: 'Bakı ş., Səbail r.' },
+        { value: 7, label: 'Bakı ş., Xətai r.' },
+        { value: 8, label: 'Bakı ş., Yasamal r.' },
+        { value: 9, label: 'Bakı ş., Suraxanı r.' },
+        { value: 10, label: 'Bakı ş., Qaradağ r.' },
+        { value: 11, label: 'Sumqayıt ş.' },
+        { value: 12, label: 'Gəncə ş.' },
+        { value: 13, label: 'Lənkəran ş.' },
+        { value: 14, label: 'Şəki ş.' },
+        { value: 15, label: 'Mingəçevir ş.' },
+        { value: 16, label: 'Abşeron r.' },
+        { value: 17, label: 'Salyan r.' },
+        { value: 18, label: 'Şamaxı r.' },
+        { value: 19, label: 'Quba r.' },
+        { value: 20, label: 'Xaçmaz r.' },
+      ];
+    }
+    if (!state.combos.metros?.length) {
+      state.combos.metros = [
+        { value: 1, label: 'İçərişəhər' },
+        { value: 2, label: 'Sahil' },
+        { value: 3, label: '28 May' },
+        { value: 4, label: 'Gənclik' },
+        { value: 5, label: 'Nariman Narimanov' },
+        { value: 6, label: 'Ulduz' },
+        { value: 7, label: 'Koroğlu' },
+        { value: 8, label: 'Qara Qarayev' },
+        { value: 9, label: 'Neftçilər' },
+        { value: 10, label: 'Xalqlar Dostluğu' },
+        { value: 11, label: 'Əhmədli' },
+        { value: 12, label: 'Həzi Aslanov' },
+        { value: 13, label: 'Nizami' },
+        { value: 14, label: 'Elmlar Akademiyası' },
+        { value: 15, label: '20 Yanvar' },
+        { value: 16, label: 'Memar Əcəmi' },
+      ];
+    }
     if (!state.combos.roomCounts?.length) {
       state.combos.roomCounts = [
         { value: 1, label: '1 otaqlı' },
@@ -92,6 +142,20 @@
         { value: 5, label: '3 otaqlı' },
         { value: 7, label: '4 otaqlı' },
         { value: 9, label: '5+ otaqlı' },
+      ];
+    }
+    if (!state.combos.repairRates?.length) {
+      state.combos.repairRates = [
+        { value: 1, label: 'Əla təmirli' },
+        { value: 2, label: 'Yaxşı' },
+        { value: 3, label: 'Orta' },
+        { value: 4, label: 'Təmirsiz' },
+      ];
+    }
+    if (!state.combos.ownerTypes?.length) {
+      state.combos.ownerTypes = [
+        { value: 1, label: 'Əmlak sahibi' },
+        { value: 2, label: 'Vasitəçi' },
       ];
     }
   }
