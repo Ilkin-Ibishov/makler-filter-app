@@ -8,6 +8,9 @@
 
   // ── Telegram WebApp ──────────────────────────────────────
   const tg = window.Telegram?.WebApp;
+  // Detect if we're actually inside Telegram (not just script loaded)
+  const isInsideTelegram = !!(tg && tg.initData && tg.initData.length > 0);
+
   if (tg) {
     tg.ready();
     tg.expand();
@@ -143,6 +146,8 @@
         btn.classList.add('selected');
         state.selected[key + '_id'] = item.value;
         state.selected[key + '_name'] = item.label || String(item.value);
+        // Clear validation error on this section
+        clearSectionError(container.closest('.form-section'));
       });
       container.appendChild(btn);
     });
@@ -190,6 +195,13 @@
     const searchInput = document.getElementById(key + 'Search');
     const listEl = document.getElementById(key + 'List');
     const tagEl = document.getElementById(key + (multi ? 'Tags' : 'Tag'));
+
+    // Hide section entirely if no items
+    if (!items.length) {
+      const section = searchInput.closest('.form-section');
+      if (section) section.style.display = 'none';
+      return;
+    }
 
     let highlightIdx = -1;
 
@@ -388,6 +400,73 @@
     maxEl.addEventListener('input', validate);
   }
 
+  // ── Validation ───────────────────────────────────────────
+  function validateForm() {
+    let valid = true;
+    let firstErrorSection = null;
+
+    // Clear all previous section errors
+    document.querySelectorAll('.form-section').forEach(s => clearSectionError(s));
+
+    // Required: Operation Type
+    if (state.selected.type_id == null) {
+      const section = document.getElementById('section-type');
+      showSectionError(section, 'Əməliyyat növü seçilməlidir');
+      valid = false;
+      if (!firstErrorSection) firstErrorSection = section;
+    }
+
+    // Required: Category
+    if (state.selected.category_id == null) {
+      const section = document.getElementById('section-category');
+      showSectionError(section, 'Kateqoriya seçilməlidir');
+      valid = false;
+      if (!firstErrorSection) firstErrorSection = section;
+    }
+
+    // Price: max >= min
+    const minVal = document.getElementById('priceMin').value;
+    const maxVal = document.getElementById('priceMax').value;
+    if (minVal && maxVal) {
+      const min = parseFloat(minVal);
+      const max = parseFloat(maxVal);
+      if (!isNaN(min) && !isNaN(max) && max < min) {
+        const section = document.getElementById('section-price');
+        showSectionError(section, 'Maksimum qiymət minimumdan böyük olmalıdır');
+        valid = false;
+        if (!firstErrorSection) firstErrorSection = section;
+      }
+    }
+
+    // Scroll to first error
+    if (firstErrorSection) {
+      firstErrorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Shake animation
+      firstErrorSection.classList.add('shake');
+      setTimeout(() => firstErrorSection.classList.remove('shake'), 500);
+    }
+
+    return valid;
+  }
+
+  function showSectionError(section, message) {
+    section.classList.add('section-error');
+    // Add error message if not already present
+    let errorMsg = section.querySelector('.section-error-msg');
+    if (!errorMsg) {
+      errorMsg = document.createElement('div');
+      errorMsg.className = 'section-error-msg';
+      section.appendChild(errorMsg);
+    }
+    errorMsg.textContent = message;
+  }
+
+  function clearSectionError(section) {
+    section.classList.remove('section-error');
+    const msg = section.querySelector('.section-error-msg');
+    if (msg) msg.remove();
+  }
+
   // ── Form Submit ──────────────────────────────────────────
   function bindFormSubmit() {
     const form = document.getElementById('filterForm');
@@ -398,18 +477,15 @@
   }
 
   function submitFilter() {
-    // Collect price
+    // Collect prices into state before validation
     const minVal = document.getElementById('priceMin').value;
     const maxVal = document.getElementById('priceMax').value;
-    if (minVal) state.selected.price_min = parseFloat(minVal);
-    if (maxVal) state.selected.price_max = parseFloat(maxVal);
+    state.selected.price_min = minVal ? parseFloat(minVal) : null;
+    state.selected.price_max = maxVal ? parseFloat(maxVal) : null;
 
-    // Validate: max >= min
-    if (state.selected.price_min != null && state.selected.price_max != null) {
-      if (state.selected.price_max < state.selected.price_min) {
-        document.getElementById('priceMax').focus();
-        return;
-      }
+    // Validate required fields
+    if (!validateForm()) {
+      return;
     }
 
     // Only include currency if price is set
@@ -426,15 +502,60 @@
     }
 
     const json = JSON.stringify(output);
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
+
+    // Show loading state
+    submitBtn.disabled = true;
+    btnText.style.display = 'none';
+    btnLoader.style.display = 'block';
 
     // Send via Telegram WebApp
-    if (tg) {
-      tg.sendData(json);
+    if (isInsideTelegram) {
+      try {
+        tg.sendData(json);
+        // Telegram will close the webapp automatically
+      } catch (e) {
+        console.error('sendData failed:', e);
+        showToast('❌ Göndərilə bilmədi. Yenidən cəhd edin.', 'error');
+        submitBtn.disabled = false;
+        btnText.style.display = '';
+        btnLoader.style.display = 'none';
+      }
     } else {
-      // Dev mode — log to console
-      console.log('Filter data (dev mode):', json);
-      alert('Filter data:\n' + JSON.stringify(output, null, 2));
+      // Dev mode / outside Telegram — show success feedback
+      setTimeout(() => {
+        console.log('Filter data (dev mode):', json);
+        submitBtn.disabled = false;
+        btnText.style.display = '';
+        btnLoader.style.display = 'none';
+        showToast('✅ Filtr məlumatları hazırdır (test rejimi)', 'success');
+        // Show the data in console for debugging
+        console.log('Payload:', JSON.parse(json));
+      }, 500);
     }
+  }
+
+  // ── Toast Notification ───────────────────────────────────
+  function showToast(message, type) {
+    // Remove existing toast
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-' + type;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Trigger animation
+    requestAnimationFrame(() => toast.classList.add('show'));
+
+    // Auto-remove
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   }
 
   // ── Utility ──────────────────────────────────────────────
