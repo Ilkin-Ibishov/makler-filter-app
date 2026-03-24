@@ -9,7 +9,8 @@
   // ── Telegram WebApp ──────────────────────────────────────
   const tg = window.Telegram?.WebApp;
   // Detect if we're actually inside Telegram (not just script loaded)
-  const isInsideTelegram = !!(tg && tg.initData && tg.initData.length > 0);
+  // Keyboard Button Web Apps don't have initData, so we check platform instead
+  const isInsideTelegram = !!(tg && tg.platform && tg.platform !== 'unknown');
 
   if (tg) {
     tg.ready();
@@ -586,7 +587,14 @@
     if (isInsideTelegram) {
       try {
         tg.sendData(json);
-        // Telegram will close the webapp automatically
+        // Telegram will close the webapp automatically immediately.
+        // If it doesn't close within 1.5s, it silently failed (wrong launch context).
+        setTimeout(() => {
+          showToast('❌ Xəta: Zəhmət olmasa köhnə mesajdakı deyil, ekranın altındakı 🆕 Yeni filtr yarat düyməsini istifadə edin.', 'error');
+          submitBtn.disabled = false;
+          btnText.style.display = '';
+          btnLoader.style.display = 'none';
+        }, 1500);
       } catch (e) {
         console.error('sendData failed:', e);
         showToast('❌ Göndərilə bilmədi. Yenidən cəhd edin.', 'error');
