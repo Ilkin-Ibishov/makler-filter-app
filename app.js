@@ -196,13 +196,6 @@
     const listEl = document.getElementById(key + 'List');
     const tagEl = document.getElementById(key + (multi ? 'Tags' : 'Tag'));
 
-    // Hide section entirely if no items
-    if (!items.length) {
-      const section = searchInput.closest('.form-section');
-      if (section) section.style.display = 'none';
-      return;
-    }
-
     let highlightIdx = -1;
 
     function renderList(filter) {
