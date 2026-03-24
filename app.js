@@ -26,8 +26,8 @@
       category_name: null,
       building_type_id: null,
       building_type_name: null,
-      location_id: null,
-      location_name: null,
+      location_ids: [],
+      location_names: [],
       metro_ids: [],
       metro_names: [],
       price_min: null,
@@ -130,9 +130,17 @@
         { value: 11, label: 'Əhmədli' },
         { value: 12, label: 'Həzi Aslanov' },
         { value: 13, label: 'Nizami' },
-        { value: 14, label: 'Elmlar Akademiyası' },
+        { value: 14, label: 'Elmlər Akademiyası' },
         { value: 15, label: '20 Yanvar' },
         { value: 16, label: 'Memar Əcəmi' },
+        { value: 17, label: 'İnşaatçılar' },
+        { value: 18, label: 'Bakmil' },
+        { value: 19, label: 'Dərnəgül' },
+        { value: 20, label: 'Azadlıq prospekti' },
+        { value: 21, label: 'Cəfər Cabbarlı' },
+        { value: 22, label: 'Avtovağzal' },
+        { value: 23, label: '8 Noyabr' },
+        { value: 24, label: 'Xocəsən' },
       ];
     }
     if (!state.combos.roomCounts?.length) {
@@ -171,7 +179,7 @@
       renderRadioGroup('buildingTypeGroup', btypes, 'building_type');
     }
 
-    renderSearchableSelect('location', state.combos.regions || [], false);
+    renderSearchableSelect('location', state.combos.regions || [], true);
 
     const metros = state.combos.metros || [];
     if (metros.length) {
