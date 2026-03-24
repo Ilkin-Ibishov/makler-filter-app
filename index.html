@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Filtr Yarat — Makler Bot</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>🏠 Yeni Filtr</h1>
+      <p class="subtitle">Axtarış kriteriyalarını seçin</p>
+    </header>
+
+    <form id="filterForm" autocomplete="off">
+      <!-- Section 1: Operation Type -->
+      <section class="form-section" id="section-type">
+        <h2 class="section-title">Əməliyyat növü</h2>
+        <div class="radio-group" id="typeGroup" data-key="type"></div>
+      </section>
+
+      <!-- Section 2: Property Type -->
+      <section class="form-section" id="section-category">
+        <h2 class="section-title">Kateqoriya</h2>
+        <div class="radio-group" id="categoryGroup" data-key="category"></div>
+      </section>
+
+      <!-- Section 3: Building Type -->
+      <section class="form-section" id="section-building-type" style="display:none">
+        <h2 class="section-title">Tikili növü</h2>
+        <div class="radio-group" id="buildingTypeGroup" data-key="building_type"></div>
+      </section>
+
+      <!-- Section 4: Region (searchable) -->
+      <section class="form-section" id="section-location">
+        <h2 class="section-title">Şəhər / Rayon</h2>
+        <div class="searchable-select" id="locationSelect">
+          <input type="text" class="search-input" id="locationSearch" placeholder="Axtar... (məs. Yasamal)">
+          <div class="dropdown-list" id="locationList"></div>
+          <div class="selected-tag" id="locationTag" style="display:none"></div>
+        </div>
+      </section>
+
+      <!-- Section 5: Metro (multi-select searchable) -->
+      <section class="form-section" id="section-metro" style="display:none">
+        <h2 class="section-title">Metro stansiyası</h2>
+        <div class="searchable-select multi" id="metroSelect">
+          <input type="text" class="search-input" id="metroSearch" placeholder="Axtar...">
+          <div class="dropdown-list" id="metroList"></div>
+          <div class="selected-tags" id="metroTags"></div>
+        </div>
+      </section>
+
+      <!-- Section 6: Price Range -->
+      <section class="form-section" id="section-price">
+        <h2 class="section-title">Qiymət aralığı</h2>
+        <div class="price-row">
+          <div class="price-input-wrapper">
+            <label for="priceMin">Minimum</label>
+            <input type="number" id="priceMin" class="price-input" placeholder="0" min="0" inputmode="numeric">
+          </div>
+          <span class="price-separator">—</span>
+          <div class="price-input-wrapper">
+            <label for="priceMax">Maksimum</label>
+            <input type="number" id="priceMax" class="price-input" placeholder="∞" min="0" inputmode="numeric">
+          </div>
+        </div>
+        <div class="currency-chips" id="currencyChips">
+          <button type="button" class="chip selected" data-value="AZN">AZN</button>
+          <button type="button" class="chip" data-value="USD">USD</button>
+          <button type="button" class="chip" data-value="EUR">EUR</button>
+        </div>
+      </section>
+
+      <!-- Section 7: Rooms (multi-select chips) -->
+      <section class="form-section" id="section-rooms">
+        <h2 class="section-title">Otaq sayı</h2>
+        <div class="chip-group multi" id="roomsGroup"></div>
+      </section>
+
+      <!-- Section 8: Repair Rate (multi-select chips) -->
+      <section class="form-section" id="section-repair" style="display:none">
+        <h2 class="section-title">Təmir vəziyyəti</h2>
+        <div class="chip-group multi" id="repairGroup"></div>
+      </section>
+
+      <!-- Section 9: Owner Type -->
+      <section class="form-section" id="section-owner" style="display:none">
+        <h2 class="section-title">Sahibi</h2>
+        <div class="radio-group" id="ownerGroup" data-key="owner_type"></div>
+      </section>
+
+      <!-- Submit -->
+      <div class="form-actions">
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="btn-text">Yadda saxla ✓</span>
+          <span class="btn-loader" style="display:none"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
