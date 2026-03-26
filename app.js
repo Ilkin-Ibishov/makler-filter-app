@@ -174,6 +174,10 @@
         { value: 9, label: '5+ otaqlı' },
       ];
     }
+    // Limit room chips to 5 for clean mobile UI (API may return 11+)
+    if (state.combos.roomCounts.length > 5) {
+      state.combos.roomCounts = state.combos.roomCounts.slice(0, 5);
+    }
     if (!state.combos.repairRates?.length) {
       state.combos.repairRates = [
         { value: 1, label: 'Əla təmirli' },
