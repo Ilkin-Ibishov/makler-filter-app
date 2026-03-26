@@ -34,14 +34,34 @@
       price_min: null,
       price_max: null,
       currency: 'AZN',
+      area_min: null,
+      area_max: null,
+      land_area_min: null,
+      land_area_max: null,
       rooms: [],
       room_names: [],
+      floor_min: null,
+      floor_max: null,
+      total_floor_min: null,
+      total_floor_max: null,
+      exclude_last_floor: false,
       repair_ids: [],
       repair_names: [],
       owner_type_id: null,
       owner_type_name: null,
+      document_ids: [],
+      document_names: [],
+      target_ids: [],
+      target_names: [],
+      keyword: null,
     },
   };
+
+  // ── Category IDs for conditional visibility ────────────
+  const CAT_LAND = 1;
+  const CAT_GARAGE = 6;
+  const CAT_HOUSE = 2;
+  const CAT_GARDEN_HOUSE = 3;
 
   // ── Init ─────────────────────────────────────────────────
   function init() {
@@ -49,7 +69,8 @@
     renderAllSections();
     bindFormSubmit();
     bindCurrencyChips();
-    bindPriceValidation();
+    bindRangeValidation();
+    bindToggle();
   }
 
   // ── Load combo data from URL param ───────────────────────
@@ -167,12 +188,18 @@
         { value: 2, label: 'Vasitəçi' },
       ];
     }
+    if (!state.combos.documents?.length) {
+      state.combos.documents = [
+        { value: 1, label: 'Çıxarış' },
+        { value: 2, label: 'Kupça' },
+      ];
+    }
   }
 
   // ── Render all sections ──────────────────────────────────
   function renderAllSections() {
     renderRadioGroup('typeGroup', state.combos.operationTypes, 'type');
-    renderRadioGroup('categoryGroup', state.combos.propertyTypes, 'category');
+    renderRadioGroup('categoryGroup', state.combos.propertyTypes, 'category', onCategoryChange);
 
     const btypes = state.combos.buildingTypes || [];
     if (btypes.length) {
@@ -201,10 +228,89 @@
       document.getElementById('section-owner').style.display = '';
       renderRadioGroup('ownerGroup', owners, 'owner_type');
     }
+
+    const docs = state.combos.documents || [];
+    if (docs.length) {
+      document.getElementById('section-document').style.display = '';
+      renderChipGroup('documentGroup', docs, 'document');
+    }
+
+    const targets = state.combos.targets || [];
+    if (targets.length) {
+      document.getElementById('section-target').style.display = '';
+      renderSearchableSelect('target', targets, true);
+    }
+  }
+
+  // ── Conditional Visibility ─────────────────────────────
+  function onCategoryChange() {
+    updateConditionalSections();
+  }
+
+  function updateConditionalSections() {
+    const catId = state.selected.category_id;
+    const isLand = catId === CAT_LAND;
+    const isGarage = catId === CAT_GARAGE;
+    const isHouse = catId === CAT_HOUSE || catId === CAT_GARDEN_HOUSE;
+
+    // Area (m²): everything except land
+    toggleSection('section-area', !isLand && catId != null);
+    // Land area (sot): only for land
+    toggleSection('section-land-area', isLand);
+    // Rooms: not for land or garage
+    toggleSection('section-rooms', !isLand && !isGarage && catId != null);
+    // Floor: not for land or garage
+    toggleSection('section-floor', !isLand && !isGarage && catId != null);
+    // Total floors: not for land or garage
+    toggleSection('section-total-floor', !isLand && !isGarage && catId != null);
+    // Exclude last floor: only for apartments (not house, land, garage)
+    toggleSection('section-exclude-last-floor', !isLand && !isGarage && !isHouse && catId != null);
+
+    // Clear values of hidden sections
+    if (isLand) {
+      clearRangeInputs('areaMin', 'areaMax', 'area_min', 'area_max');
+      clearRangeInputs('floorMin', 'floorMax', 'floor_min', 'floor_max');
+      clearRangeInputs('totalFloorMin', 'totalFloorMax', 'total_floor_min', 'total_floor_max');
+      state.selected.exclude_last_floor = false;
+      const cb = document.getElementById('excludeLastFloor');
+      if (cb) cb.checked = false;
+      state.selected.rooms = [];
+      state.selected.room_names = [];
+    } else {
+      clearRangeInputs('landAreaMin', 'landAreaMax', 'land_area_min', 'land_area_max');
+    }
+    if (isGarage) {
+      clearRangeInputs('floorMin', 'floorMax', 'floor_min', 'floor_max');
+      clearRangeInputs('totalFloorMin', 'totalFloorMax', 'total_floor_min', 'total_floor_max');
+      state.selected.exclude_last_floor = false;
+      const cb = document.getElementById('excludeLastFloor');
+      if (cb) cb.checked = false;
+      state.selected.rooms = [];
+      state.selected.room_names = [];
+    }
+    if (isHouse) {
+      state.selected.exclude_last_floor = false;
+      const cb = document.getElementById('excludeLastFloor');
+      if (cb) cb.checked = false;
+    }
+  }
+
+  function toggleSection(sectionId, show) {
+    const el = document.getElementById(sectionId);
+    if (el) el.style.display = show ? '' : 'none';
+  }
+
+  function clearRangeInputs(minId, maxId, stateMinKey, stateMaxKey) {
+    const minEl = document.getElementById(minId);
+    const maxEl = document.getElementById(maxId);
+    if (minEl) minEl.value = '';
+    if (maxEl) maxEl.value = '';
+    state.selected[stateMinKey] = null;
+    state.selected[stateMaxKey] = null;
   }
 
   // ── Radio Group (single select) ──────────────────────────
-  function renderRadioGroup(containerId, items, key) {
+  function renderRadioGroup(containerId, items, key, onChange) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
     items.forEach(item => {
@@ -221,6 +327,7 @@
         state.selected[key + '_name'] = item.label || String(item.value);
         // Clear validation error on this section
         clearSectionError(container.closest('.form-section'));
+        if (onChange) onChange();
       });
       container.appendChild(btn);
     });
@@ -446,30 +553,51 @@
     });
   }
 
-  // ── Price Validation ─────────────────────────────────────
-  function bindPriceValidation() {
-    const minEl = document.getElementById('priceMin');
-    const maxEl = document.getElementById('priceMax');
+  // ── Range Validation ───────────────────────────────────
+  function bindRangeValidation() {
+    // All range input pairs: [minId, maxId]
+    const rangePairs = [
+      ['priceMin', 'priceMax'],
+      ['areaMin', 'areaMax'],
+      ['landAreaMin', 'landAreaMax'],
+      ['floorMin', 'floorMax'],
+      ['totalFloorMin', 'totalFloorMax'],
+    ];
 
-    function validate() {
-      const min = parseFloat(minEl.value);
-      const max = parseFloat(maxEl.value);
-      maxEl.classList.remove('error');
-      // Remove existing error hints
-      const existing = maxEl.parentElement.querySelector('.error-hint');
-      if (existing) existing.remove();
+    rangePairs.forEach(([minId, maxId]) => {
+      const minEl = document.getElementById(minId);
+      const maxEl = document.getElementById(maxId);
+      if (!minEl || !maxEl) return;
 
-      if (!isNaN(min) && !isNaN(max) && max < min && max > 0) {
-        maxEl.classList.add('error');
-        const hint = document.createElement('div');
-        hint.className = 'error-hint';
-        hint.textContent = 'Maksimum minimumdan böyük olmalıdır';
-        maxEl.parentElement.appendChild(hint);
+      function validate() {
+        const min = parseFloat(minEl.value);
+        const max = parseFloat(maxEl.value);
+        maxEl.classList.remove('error');
+        const existing = maxEl.parentElement.querySelector('.error-hint');
+        if (existing) existing.remove();
+
+        if (!isNaN(min) && !isNaN(max) && max < min && max > 0) {
+          maxEl.classList.add('error');
+          const hint = document.createElement('div');
+          hint.className = 'error-hint';
+          hint.textContent = 'Maksimum minimumdan böyük olmalıdır';
+          maxEl.parentElement.appendChild(hint);
+        }
       }
-    }
 
-    minEl.addEventListener('input', validate);
-    maxEl.addEventListener('input', validate);
+      minEl.addEventListener('input', validate);
+      maxEl.addEventListener('input', validate);
+    });
+  }
+
+  // ── Toggle / Checkbox ──────────────────────────────────
+  function bindToggle() {
+    const cb = document.getElementById('excludeLastFloor');
+    if (cb) {
+      cb.addEventListener('change', () => {
+        state.selected.exclude_last_floor = cb.checked;
+      });
+    }
   }
 
   // ── Validation ───────────────────────────────────────────
@@ -496,19 +624,30 @@
       if (!firstErrorSection) firstErrorSection = section;
     }
 
-    // Price: max >= min
-    const minVal = document.getElementById('priceMin').value;
-    const maxVal = document.getElementById('priceMax').value;
-    if (minVal && maxVal) {
-      const min = parseFloat(minVal);
-      const max = parseFloat(maxVal);
-      if (!isNaN(min) && !isNaN(max) && max < min) {
-        const section = document.getElementById('section-price');
-        showSectionError(section, 'Maksimum qiymət minimumdan böyük olmalıdır');
-        valid = false;
-        if (!firstErrorSection) firstErrorSection = section;
+    // Validate all visible range pairs
+    const rangeChecks = [
+      { minId: 'priceMin', maxId: 'priceMax', sectionId: 'section-price', label: 'Maksimum qiymət minimumdan böyük olmalıdır' },
+      { minId: 'areaMin', maxId: 'areaMax', sectionId: 'section-area', label: 'Maksimum sahə minimumdan böyük olmalıdır' },
+      { minId: 'landAreaMin', maxId: 'landAreaMax', sectionId: 'section-land-area', label: 'Maksimum sahə minimumdan böyük olmalıdır' },
+      { minId: 'floorMin', maxId: 'floorMax', sectionId: 'section-floor', label: 'Maksimum mərtəbə minimumdan böyük olmalıdır' },
+      { minId: 'totalFloorMin', maxId: 'totalFloorMax', sectionId: 'section-total-floor', label: 'Maksimum mərtəbə sayı minimumdan böyük olmalıdır' },
+    ];
+
+    rangeChecks.forEach(({ minId, maxId, sectionId, label }) => {
+      const section = document.getElementById(sectionId);
+      if (!section || section.style.display === 'none') return;
+      const minVal = document.getElementById(minId)?.value;
+      const maxVal = document.getElementById(maxId)?.value;
+      if (minVal && maxVal) {
+        const min = parseFloat(minVal);
+        const max = parseFloat(maxVal);
+        if (!isNaN(min) && !isNaN(max) && max < min) {
+          showSectionError(section, label);
+          valid = false;
+          if (!firstErrorSection) firstErrorSection = section;
+        }
       }
-    }
+    });
 
     // Scroll to first error
     if (firstErrorSection) {
@@ -539,6 +678,16 @@
     if (msg) msg.remove();
   }
 
+  // ── Collect range values from inputs ───────────────────
+  function collectRangeValue(inputId) {
+    const el = document.getElementById(inputId);
+    if (!el) return null;
+    const section = el.closest('.form-section');
+    if (section && section.style.display === 'none') return null;
+    const val = el.value;
+    return val ? parseFloat(val) : null;
+  }
+
   // ── Form Submit ──────────────────────────────────────────
   function bindFormSubmit() {
     const form = document.getElementById('filterForm');
@@ -549,11 +698,30 @@
   }
 
   function submitFilter() {
-    // Collect prices into state before validation
-    const minVal = document.getElementById('priceMin').value;
-    const maxVal = document.getElementById('priceMax').value;
-    state.selected.price_min = minVal ? parseFloat(minVal) : null;
-    state.selected.price_max = maxVal ? parseFloat(maxVal) : null;
+    // Collect all range inputs into state before validation
+    state.selected.price_min = collectRangeValue('priceMin');
+    state.selected.price_max = collectRangeValue('priceMax');
+    state.selected.area_min = collectRangeValue('areaMin');
+    state.selected.area_max = collectRangeValue('areaMax');
+    state.selected.land_area_min = collectRangeValue('landAreaMin');
+    state.selected.land_area_max = collectRangeValue('landAreaMax');
+    state.selected.floor_min = collectRangeValue('floorMin');
+    state.selected.floor_max = collectRangeValue('floorMax');
+    state.selected.total_floor_min = collectRangeValue('totalFloorMin');
+    state.selected.total_floor_max = collectRangeValue('totalFloorMax');
+
+    // Collect keyword
+    const kwEl = document.getElementById('keywordInput');
+    state.selected.keyword = kwEl && kwEl.value.trim() ? kwEl.value.trim() : null;
+
+    // Collect toggle
+    const cb = document.getElementById('excludeLastFloor');
+    const cbSection = document.getElementById('section-exclude-last-floor');
+    if (cb && cbSection && cbSection.style.display !== 'none') {
+      state.selected.exclude_last_floor = cb.checked;
+    } else {
+      state.selected.exclude_last_floor = false;
+    }
 
     // Validate required fields
     if (!validateForm()) {
@@ -565,10 +733,11 @@
       state.selected.currency = null;
     }
 
-    // Build output — only include non-null, non-empty fields
+    // Build output — only include non-null, non-empty, non-false fields
     const output = {};
     for (const [k, v] of Object.entries(state.selected)) {
       if (v === null || v === undefined) continue;
+      if (v === false) continue;
       if (Array.isArray(v) && v.length === 0) continue;
       output[k] = v;
     }

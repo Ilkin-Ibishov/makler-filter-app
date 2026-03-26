@@ -390,6 +390,153 @@ body {
   -moz-appearance: textfield;
 }
 
+/* ---------- Range Inputs (generic) ---------- */
+.range-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.range-input-wrapper {
+  flex: 1;
+}
+
+.range-input-wrapper label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--hint);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.range-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--secondary-bg);
+  background: var(--secondary-bg);
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.range-input:focus {
+  border-color: var(--btn);
+  background: var(--bg);
+}
+
+.range-input::placeholder {
+  color: var(--hint);
+}
+
+.range-separator {
+  font-size: 1.25rem;
+  color: var(--hint);
+  padding-bottom: 10px;
+}
+
+/* Remove spinner arrows from range inputs */
+.range-input::-webkit-inner-spin-button,
+.range-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.range-input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.range-input.error {
+  border-color: var(--destructive);
+}
+
+/* ---------- Toggle Switch ---------- */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: var(--secondary-bg);
+  border: 2px solid var(--secondary-bg);
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 2px;
+  top: 2px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: transform var(--transition);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--btn);
+  border-color: var(--btn);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* ---------- Text Input ---------- */
+.text-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--secondary-bg);
+  background: var(--secondary-bg);
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.text-input:focus {
+  border-color: var(--btn);
+  background: var(--bg);
+}
+
+.text-input::placeholder {
+  color: var(--hint);
+}
+
 /* ---------- Submit Button ---------- */
 .form-actions {
   padding: 16px;

@@ -75,22 +75,119 @@
         </div>
       </section>
 
-      <!-- Section 7: Rooms (multi-select chips) -->
+      <!-- Section 7: Area Range (m²) -->
+      <section class="form-section" id="section-area" style="display:none">
+        <h2 class="section-title">Sahə (m²)</h2>
+        <div class="range-row">
+          <div class="range-input-wrapper">
+            <label for="areaMin">Minimum</label>
+            <input type="number" id="areaMin" class="range-input" placeholder="0" min="0" inputmode="numeric">
+          </div>
+          <span class="range-separator">—</span>
+          <div class="range-input-wrapper">
+            <label for="areaMax">Maksimum</label>
+            <input type="number" id="areaMax" class="range-input" placeholder="∞" min="0" inputmode="numeric">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 8: Land Area Range (sot) -->
+      <section class="form-section" id="section-land-area" style="display:none">
+        <h2 class="section-title">Torpaq sahəsi (sot)</h2>
+        <div class="range-row">
+          <div class="range-input-wrapper">
+            <label for="landAreaMin">Minimum</label>
+            <input type="number" id="landAreaMin" class="range-input" placeholder="0" min="0" inputmode="numeric">
+          </div>
+          <span class="range-separator">—</span>
+          <div class="range-input-wrapper">
+            <label for="landAreaMax">Maksimum</label>
+            <input type="number" id="landAreaMax" class="range-input" placeholder="∞" min="0" inputmode="numeric">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 9: Rooms (multi-select chips) -->
       <section class="form-section" id="section-rooms">
         <h2 class="section-title">Otaq sayı</h2>
         <div class="chip-group multi" id="roomsGroup"></div>
       </section>
 
-      <!-- Section 8: Repair Rate (multi-select chips) -->
+      <!-- Section 10: Floor Range -->
+      <section class="form-section" id="section-floor" style="display:none">
+        <h2 class="section-title">Mərtəbə</h2>
+        <div class="range-row">
+          <div class="range-input-wrapper">
+            <label for="floorMin">Minimum</label>
+            <input type="number" id="floorMin" class="range-input" placeholder="0" min="0" inputmode="numeric">
+          </div>
+          <span class="range-separator">—</span>
+          <div class="range-input-wrapper">
+            <label for="floorMax">Maksimum</label>
+            <input type="number" id="floorMax" class="range-input" placeholder="∞" min="0" inputmode="numeric">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 11: Building Total Floors Range -->
+      <section class="form-section" id="section-total-floor" style="display:none">
+        <h2 class="section-title">Binanın mərtəbə sayı</h2>
+        <div class="range-row">
+          <div class="range-input-wrapper">
+            <label for="totalFloorMin">Minimum</label>
+            <input type="number" id="totalFloorMin" class="range-input" placeholder="0" min="0" inputmode="numeric">
+          </div>
+          <span class="range-separator">—</span>
+          <div class="range-input-wrapper">
+            <label for="totalFloorMax">Maksimum</label>
+            <input type="number" id="totalFloorMax" class="range-input" placeholder="∞" min="0" inputmode="numeric">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 12: Exclude Last Floor -->
+      <section class="form-section" id="section-exclude-last-floor" style="display:none">
+        <label class="toggle-container">
+          <span class="toggle-label">Axırıncı mərtəbə olmasın</span>
+          <div class="toggle-switch">
+            <input type="checkbox" id="excludeLastFloor">
+            <span class="toggle-slider"></span>
+          </div>
+        </label>
+      </section>
+
+      <!-- Section 13: Repair Rate (multi-select chips) -->
       <section class="form-section" id="section-repair" style="display:none">
         <h2 class="section-title">Təmir vəziyyəti</h2>
         <div class="chip-group multi" id="repairGroup"></div>
       </section>
 
-      <!-- Section 9: Owner Type -->
+      <!-- Section 14: Owner Type -->
       <section class="form-section" id="section-owner" style="display:none">
         <h2 class="section-title">Sahibi</h2>
         <div class="radio-group" id="ownerGroup" data-key="owner_type"></div>
+      </section>
+
+      <!-- Section 15: Document Type (multi-select chips) -->
+      <section class="form-section" id="section-document" style="display:none">
+        <h2 class="section-title">Sənəd növü</h2>
+        <div class="chip-group multi" id="documentGroup"></div>
+      </section>
+
+      <!-- Section 16: Landmark / Target (searchable multi-select) -->
+      <section class="form-section" id="section-target" style="display:none">
+        <h2 class="section-title">Nişangah</h2>
+        <div class="searchable-select multi" id="targetSelect">
+          <input type="text" class="search-input" id="targetSearch" placeholder="Axtar...">
+          <div class="dropdown-list" id="targetList"></div>
+          <div class="selected-tags" id="targetTags"></div>
+        </div>
+      </section>
+
+      <!-- Section 17: Keyword Search -->
+      <section class="form-section" id="section-keyword">
+        <h2 class="section-title">Açar söz</h2>
+        <input type="text" class="text-input" id="keywordInput" placeholder="Məs. kupçalı, təcili...">
       </section>
 
       <!-- Submit -->
